@@ -1,0 +1,98 @@
+---
+# Server deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: server
+  name: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - name: server
+          image: baalooos/jaeger-example:server
+          imagePullPolicy: Always        
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              cpu: "0.1"
+              memory: 42Mi
+            requests:
+              cpu: "0.05"
+              memory: 32Mi
+      restartPolicy: Always
+---
+# Server Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  labels:
+    service: server
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: server
+  type: ClusterIP
+---
+# Server deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: client
+  name: client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+        - name: client
+          image: baalooos/jaeger-example:client
+          imagePullPolicy: Always        
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              cpu: "0.1"
+              memory: 42Mi
+            requests:
+              cpu: "0.05"
+              memory: 32Mi
+      restartPolicy: Always
+---
+# Server Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: client
+  labels:
+    service: client
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: client
+  type: ClusterIP
